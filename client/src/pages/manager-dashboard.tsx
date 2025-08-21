@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, Zap, DollarSign, Shield, Wifi } from "lucide-react";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import { EnhancedAIChatbot } from "@/components/dashboard/EnhancedAIChatbot";
 
 export default function ManagerDashboard() {
   const { data: overview, isLoading } = useQuery({
@@ -198,6 +199,8 @@ export default function ManagerDashboard() {
           </Card>
         </div>
       </main>
+      
+      <EnhancedAIChatbot />
     </div>
   );
 }

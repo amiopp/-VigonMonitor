@@ -16,7 +16,7 @@ export default function AIChatbot() {
   const { user } = useAuth();
   const userId = user?.id || "admin";
 
-  const { data: messages = [], isLoading } = useQuery({
+  const { data: messages = [], isLoading } = useQuery<any[]>({
     queryKey: ["/api/chat", userId],
     refetchInterval: 2000,
   });

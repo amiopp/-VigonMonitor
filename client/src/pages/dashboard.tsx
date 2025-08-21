@@ -7,7 +7,7 @@ import NetworkPerformance from "@/components/dashboard/NetworkPerformance";
 import IPTVPerformance from "@/components/dashboard/IPTVPerformance";
 import SustainabilityMetrics from "@/components/dashboard/SustainabilityMetrics";
 import AlertsTable from "@/components/dashboard/AlertsTable";
-import AIChatbot from "@/components/dashboard/AIChatbot";
+import { EnhancedAIChatbot } from "@/components/dashboard/EnhancedAIChatbot";
 import VoiceCommandModal from "@/components/dashboard/VoiceCommandModal";
 import { useWebSocket } from "@/hooks/useWebSocket";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -60,17 +60,15 @@ export default function Dashboard() {
               <SustainabilityMetrics />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                <AlertsTable />
-              </div>
-              <AIChatbot />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <AlertsTable />
             </div>
           </div>
         </main>
       </div>
 
       <VoiceCommandModal />
+      <EnhancedAIChatbot />
     </div>
   );
 }
