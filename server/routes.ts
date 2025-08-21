@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
-import { insertChatMessageSchema, insertAlertSchema, insertNetworkPerformanceSchema } from "@shared/schema";
+import { insertChatMessageSchema, insertAlertSchema, insertNetworkPerformanceSchema, loginSchema } from "@shared/schema";
 import OpenAI from "openai";
 
 const openai = new OpenAI({ 
@@ -10,6 +10,67 @@ const openai = new OpenAI({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Authentication endpoints
+  app.post("/api/auth/login", async (req, res) => {
+    try {
+      const { username, password } = loginSchema.parse(req.body);
+      
+      const user = await storage.getUserByUsername(username);
+      if (!user || user.password !== password) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+
+      // Create a simple JWT-like token (for demo purposes)
+      const token = `vigon_${user.id}_${Date.now()}`;
+      
+      res.json({
+        token,
+        user: {
+          id: user.id,
+          username: user.username,
+          role: user.role,
+          name: user.name,
+        },
+      });
+    } catch (error) {
+      res.status(400).json({ error: "Invalid request data" });
+    }
+  });
+
+  app.post("/api/auth/verify", async (req, res) => {
+    try {
+      const { token } = req.body;
+      
+      if (!token || !token.startsWith("vigon_")) {
+        return res.status(401).json({ error: "Invalid token" });
+      }
+
+      // Extract user ID from token
+      const parts = token.split("_");
+      if (parts.length !== 3) {
+        return res.status(401).json({ error: "Invalid token format" });
+      }
+
+      const userId = parts[1];
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(401).json({ error: "User not found" });
+      }
+
+      res.json({
+        user: {
+          id: user.id,
+          username: user.username,
+          role: user.role,
+          name: user.name,
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Token verification failed" });
+    }
+  });
+
   // Dashboard data endpoints
   app.get("/api/dashboard/overview", async (req, res) => {
     try {

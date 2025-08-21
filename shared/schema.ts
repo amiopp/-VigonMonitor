@@ -59,6 +59,22 @@ export const chatMessages = pgTable("chat_messages", {
   timestamp: timestamp("timestamp").notNull().default(sql`now()`),
 });
 
+// Auth schemas
+export const loginSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(1, "Password is required"),
+});
+
+export const authResponseSchema = z.object({
+  token: z.string(),
+  user: z.object({
+    id: z.string(),
+    username: z.string(),
+    role: z.string(),
+    name: z.string(),
+  }),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,

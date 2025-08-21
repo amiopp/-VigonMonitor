@@ -3,15 +3,18 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Bot, User, Send } from "lucide-react";
+import { Bot, User, Send, Loader2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 export default function AIChatbot() {
   const [message, setMessage] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
-  const userId = "admin"; // In production, get from auth context
+  const { user } = useAuth();
+  const userId = user?.id || "admin";
 
   const { data: messages = [], isLoading } = useQuery({
     queryKey: ["/api/chat", userId],
@@ -20,11 +23,17 @@ export default function AIChatbot() {
 
   const sendMessageMutation = useMutation({
     mutationFn: async (message: string) => {
-      return apiRequest("POST", "/api/chat", { userId, message });
+      setIsTyping(true);
+      const response = await apiRequest("POST", "/api/chat", { userId, message });
+      return await response.json();
     },
     onSuccess: () => {
+      setIsTyping(false);
       queryClient.invalidateQueries({ queryKey: ["/api/chat", userId] });
       setMessage("");
+    },
+    onError: () => {
+      setIsTyping(false);
     },
   });
 
@@ -54,10 +63,16 @@ export default function AIChatbot() {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>AI Assistant</CardTitle>
+          <div className="flex items-center space-x-3">
+            <div className="relative">
+              <Bot className="w-6 h-6 text-blue-600" />
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse border-2 border-white" />
+            </div>
+            <CardTitle className="text-lg">Vigon AI Assistant</CardTitle>
+          </div>
           <div className="flex items-center space-x-2 text-green-600">
             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-            <span className="text-sm">Online</span>
+            <span className="text-sm font-medium">Online</span>
           </div>
         </div>
       </CardHeader>
@@ -71,8 +86,8 @@ export default function AIChatbot() {
           ) : (
             <>
               {!messages.length && (
-                <div className="flex space-x-2">
-                  <div className="w-8 h-8 bg-vigon-blue rounded-full flex items-center justify-center">
+                <div className="flex space-x-3 animate-fade-in">
+                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-lg">
                     <Bot className="h-4 w-4 text-white" />
                   </div>
                   <div className="flex-1 bg-slate-100 rounded-lg p-3">
@@ -141,12 +156,12 @@ export default function AIChatbot() {
             onChange={(e) => setMessage(e.target.value)}
             onKeyPress={handleKeyPress}
             disabled={sendMessageMutation.isPending}
-            className="flex-1 focus:ring-vigon-blue focus:border-vigon-blue"
+            className="flex-1 focus:ring-blue-600 focus:border-blue-600"
           />
           <Button
             type="submit"
             disabled={!message.trim() || sendMessageMutation.isPending}
-            className="bg-vigon-blue hover:bg-vigon-dark"
+            className="bg-blue-600 hover:bg-blue-700"
           >
             <Send className="h-4 w-4" />
           </Button>

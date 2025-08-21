@@ -10,13 +10,21 @@ import AlertsTable from "@/components/dashboard/AlertsTable";
 import AIChatbot from "@/components/dashboard/AIChatbot";
 import VoiceCommandModal from "@/components/dashboard/VoiceCommandModal";
 import { useWebSocket } from "@/hooks/useWebSocket";
+import { useAuth } from "@/components/auth/AuthProvider";
+import ManagerDashboard from "@/pages/manager-dashboard";
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const { isConnected, lastMessage } = useWebSocket();
 
   useEffect(() => {
     document.title = "Vigon Systems - Hotel IT Infrastructure Management";
   }, []);
+
+  // Show manager dashboard for Manager role
+  if (user?.role === 'Manager') {
+    return <ManagerDashboard />;
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">

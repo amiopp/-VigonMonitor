@@ -53,15 +53,25 @@ export class MemStorage implements IStorage {
   }
 
   private initializeData() {
-    // Initialize default user
+    // Initialize demo users
     const adminUser: User = {
       id: randomUUID(),
       username: "admin",
-      password: "admin123", // In production, this should be hashed
-      role: "admin",
-      name: "System Admin",
+      password: "1234",
+      role: "IT",
+      name: "IT Administrator"
     };
+    
+    const managerUser: User = {
+      id: randomUUID(),
+      username: "manager", 
+      password: "abcd",
+      role: "Manager",
+      name: "Hotel Manager"
+    };
+    
     this.users.set(adminUser.id, adminUser);
+    this.users.set(managerUser.id, managerUser);
 
     // Initialize system metrics
     const systems = [
