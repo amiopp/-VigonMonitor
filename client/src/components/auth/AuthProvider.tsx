@@ -51,10 +51,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     const token = localStorage.getItem("vigon_token");
+    const storedUser = localStorage.getItem("vigon_user");
     
     if (!token) {
       setIsLoading(false);
       return;
+    }
+
+    // Try to load user from localStorage first for immediate feedback
+    if (storedUser && !user) {
+      try {
+        const userData = JSON.parse(storedUser);
+        setUser(userData);
+      } catch (e) {
+        console.error("Failed to parse stored user data:", e);
+      }
     }
 
     if (verifyData?.user) {
@@ -62,7 +73,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
     
     setIsLoading(isVerifying);
-  }, [verifyData, isVerifying]);
+  }, [verifyData, isVerifying, user]);
 
   const logout = () => {
     localStorage.removeItem("vigon_token");

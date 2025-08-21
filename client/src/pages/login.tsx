@@ -35,15 +35,17 @@ export default function LoginPage() {
       return await response.json();
     },
     onSuccess: (data) => {
+      console.log("Login success:", data);
       // Store authentication data
       localStorage.setItem("vigon_token", data.token);
       localStorage.setItem("vigon_user", JSON.stringify(data.user));
       
-      // Redirect to dashboard
-      setLocation("/dashboard");
+      // Force a page reload to trigger auth provider refresh
+      window.location.href = "/dashboard";
     },
     onError: (error: any) => {
-      setError(error.message || "Login failed. Please try again.");
+      console.error("Login error:", error);
+      setError(error.message || "Login failed. Please check your credentials.");
     },
   });
 

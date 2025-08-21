@@ -57,7 +57,7 @@ export class MemStorage implements IStorage {
     const adminUser: User = {
       id: randomUUID(),
       username: "admin",
-      password: "1234",
+      password: "Amine2@@300",
       role: "IT",
       name: "IT Administrator"
     };
@@ -65,7 +65,7 @@ export class MemStorage implements IStorage {
     const managerUser: User = {
       id: randomUUID(),
       username: "manager", 
-      password: "abcd",
+      password: "Amine2@@300",
       role: "Manager",
       name: "Hotel Manager"
     };
