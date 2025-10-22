@@ -2,7 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Wifi, Tv, Shield, Slash } from "lucide-react";
+import { Wifi, Tv, Shield, Clock } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 
 const alertIcons = {
   wifi: Wifi,
@@ -48,6 +49,10 @@ export default function RecentAlerts() {
     );
   }
 
+  // Safe access with default values
+  const safeAlerts = Array.isArray(alerts) ? alerts : [];
+  const safeSystems = Array.isArray(systems) ? systems : [];
+
   return (
     <Card className="border border-slate-200">
       <CardHeader>
@@ -71,8 +76,8 @@ export default function RecentAlerts() {
               </tr>
             </thead>
             <tbody>
-              {alerts?.slice(0, 5).map((alert) => {
-                const system = systems?.find(s => s.id === alert.systemId);
+              {safeAlerts.slice(0, 5).map((alert: any) => {
+                const system = safeSystems.find((s: any) => s.id === alert.systemId);
                 const systemType = system?.type || 'wifi';
                 const IconComponent = alertIcons[systemType as keyof typeof alertIcons] || Wifi;
                 
@@ -97,14 +102,21 @@ export default function RecentAlerts() {
                       </Badge>
                     </td>
                     <td className="py-3 text-sm text-slate-500">
-                      {alert.createdAt ? Slash(new Date(alert.createdAt), { addSuffix: true }) : 'Unknown'}
+                      {alert.createdAt ? (
+                        <div className="flex items-center space-x-1">
+                          <Clock className="h-3 w-3 text-slate-400" />
+                          <span>{formatDistanceToNow(new Date(alert.createdAt), { addSuffix: true })}</span>
+                        </div>
+                      ) : 'Unknown'}
                     </td>
                     <td className="py-3">
-                      <Badge className={statusColors[alert.status as keyof typeof statusColors]}>
-                        {alert.status.replace('_', ' ').split(' ').map(word => 
-                          word.charAt(0).toUpperCase() + word.slice(1)
-                        ).join(' ')}
-                      </Badge>
+                      <div className="flex flex-wrap gap-1">
+                        {alert.status.replace('_', ' ').split(' ').map((word: string, index: number) => (
+                          <span key={index} className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded">
+                            {word}
+                          </span>
+                        ))}
+                      </div>
                     </td>
                   </tr>
                 );
@@ -112,7 +124,7 @@ export default function RecentAlerts() {
             </tbody>
           </table>
           
-          {!alerts?.length && (
+          {safeAlerts.length === 0 && (
             <div className="text-center py-8 text-slate-500">
               No alerts at this time
             </div>

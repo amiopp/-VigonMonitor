@@ -45,7 +45,7 @@ export default function SystemStatus() {
     );
   }
 
-  const systems = overview?.systemMetrics || [];
+  const systems = Array.isArray((overview as any)?.systemMetrics) ? (overview as any).systemMetrics : [];
   const healthyCount = systems.filter((s: any) => s.status === "healthy").length;
 
   return (

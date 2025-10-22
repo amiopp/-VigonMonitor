@@ -88,7 +88,7 @@ export default function AlertsTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {alerts?.map((alert: any) => {
+              {Array.isArray(alerts) && alerts.map((alert: any) => {
                 const IconComponent = systemIcons[alert.systemType as keyof typeof systemIcons] || AlertTriangle;
                 return (
                   <TableRow key={alert.id} className="border-slate-100">

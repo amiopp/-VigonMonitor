@@ -13,13 +13,22 @@ export function useVoiceCommand() {
     mutationFn: async (transcript: string) => {
       return apiRequest("POST", "/api/voice/process", { transcript });
     },
-    onSuccess: (response) => {
-      const data = response.json();
-      toast({
-        title: "Voice Command Processed",
-        description: `Action: ${data.action}`,
-      });
-      // Here you would handle the intent and navigate/update UI accordingly
+    onSuccess: async (response) => {
+      try {
+        const data = await response.json();
+        toast({
+          title: "Voice Command Processed",
+          description: `Action: ${data.action}`,
+        });
+        // Here you would handle the intent and navigate/update UI accordingly
+      } catch (error) {
+        console.error("Error parsing response:", error);
+        toast({
+          title: "Voice Command Error",
+          description: "Failed to parse response",
+          variant: "destructive",
+        });
+      }
     },
     onError: () => {
       toast({

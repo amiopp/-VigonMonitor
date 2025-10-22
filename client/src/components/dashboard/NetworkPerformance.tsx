@@ -26,8 +26,8 @@ export default function NetworkPerformance() {
     );
   }
 
-  const latest = overview?.networkPerformance;
-  const chartData = networkHistory?.slice(-7) || [];
+  const latest = (overview as any)?.networkPerformance;
+  const chartData = Array.isArray(networkHistory) ? networkHistory.slice(-7) : [];
 
   return (
     <Card>

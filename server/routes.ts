@@ -74,6 +74,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Dashboard data endpoints
   app.get("/api/dashboard/overview", async (req, res) => {
     try {
+      const hotelId = (req.query.hotelId as string) || undefined;
       const [systemMetrics, latestNetwork, alerts, powerConsumption] = await Promise.all([
         storage.getSystemMetrics(),
         storage.getLatestNetworkPerformance(),
@@ -81,11 +82,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         storage.getLatestPowerConsumption(),
       ]);
 
+      const filteredSystemMetrics = hotelId
+        ? systemMetrics.filter((m) => (m as any).hotelId === hotelId)
+        : systemMetrics;
+      const filteredAlerts = hotelId
+        ? alerts.filter((a) => (a as any).hotelId === hotelId)
+        : alerts;
+      const network = hotelId && latestNetwork && (latestNetwork as any).hotelId !== hotelId ? undefined : latestNetwork;
+      const power = hotelId && powerConsumption && (powerConsumption as any).hotelId !== hotelId ? undefined : powerConsumption;
+
       const overview = {
-        systemMetrics,
-        networkPerformance: latestNetwork,
-        alertsCount: alerts.length,
-        powerConsumption,
+        systemMetrics: filteredSystemMetrics,
+        networkPerformance: network,
+        alertsCount: filteredAlerts.length,
+        powerConsumption: power,
         lastUpdated: new Date(),
       };
 
@@ -98,8 +108,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/network/performance", async (req, res) => {
     try {
       const hours = parseInt(req.query.hours as string) || 24;
+      const hotelId = (req.query.hotelId as string) || undefined;
       const history = await storage.getNetworkPerformanceHistory(hours);
-      res.json(history);
+      const filtered = hotelId ? history.filter((h) => (h as any).hotelId === hotelId) : history;
+      res.json(filtered);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch network performance data" });
     }
@@ -108,8 +120,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/alerts", async (req, res) => {
     try {
       const limit = parseInt(req.query.limit as string) || 10;
-      const alerts = await storage.getAlerts(limit);
-      res.json(alerts);
+      const hotelId = (req.query.hotelId as string) || undefined;
+      const all = await storage.getAlerts(limit);
+      const filtered = hotelId ? all.filter((a) => (a as any).hotelId === hotelId) : all;
+      res.json(filtered);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch alerts" });
     }
@@ -134,8 +148,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/power/consumption", async (req, res) => {
     try {
       const days = parseInt(req.query.days as string) || 7;
+      const hotelId = (req.query.hotelId as string) || undefined;
       const history = await storage.getPowerConsumptionHistory(days);
-      res.json(history);
+      const filtered = hotelId ? history.filter((p) => (p as any).hotelId === hotelId) : history;
+      res.json(filtered);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch power consumption data" });
     }
@@ -169,6 +185,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Chat error:", error);
       res.status(500).json({ error: "Failed to process chat message" });
+    }
+  });
+
+  // Notifications API
+  app.get('/api/notifications', async (req, res) => {
+    try {
+      const hotelId = (req.query.hotelId as string) || undefined;
+      const limit = parseInt(req.query.limit as string) || 50;
+      const notifs = await storage.getNotifications(hotelId, limit);
+      res.json(notifs);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch notifications' });
+    }
+  });
+
+  app.post('/api/notifications', async (req, res) => {
+    try {
+      const { title, message, type, hotelId } = req.body as { title: string; message: string; type: 'alert' | 'news'; hotelId: string };
+      if (!title || !message || !type || !hotelId) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+      const created = await storage.createNotification({ title, message, type, hotelId });
+      res.json(created);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to create notification' });
     }
   });
 
@@ -252,6 +293,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     };
 
+    // Broadcast helper
+    const broadcast = (payload: any) => {
+      const data = JSON.stringify(payload);
+      wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(data);
+        }
+      });
+    };
+
+    // Handle inbound messages (chat and alerts)
+    ws.on('message', async (raw) => {
+      try {
+        const msg = JSON.parse(raw.toString());
+        if (msg?.type === 'chat_message') {
+          // Persist chat message
+          const stored = await storage.createChatMessage({
+            message: msg.message || '',
+            userId: msg.userId || null,
+            hotelId: msg.hotelId || 'hotel-1',
+          });
+
+          broadcast({
+            type: 'chat_message',
+            id: stored.id,
+            sender: msg.sender || 'Unknown',
+            userId: stored.userId,
+            message: stored.message,
+            msgType: msg.msgType || 'normal',
+            timestamp: stored.timestamp,
+            hotelId: msg.hotelId || 'hotel-1',
+          });
+        }
+
+        if (msg?.type === 'alert_message') {
+          // Also create an alert entity for visibility
+          await storage.createAlert({
+            systemType: msg.systemType || 'general',
+            systemName: msg.systemName || 'Staff Chat',
+            alertType: msg.alertType || 'chat_alert',
+            severity: msg.severity || 'warning',
+            message: msg.message || 'Alert declared from chat',
+            status: 'open',
+            hotelId: 'hotel-1',
+          });
+
+          broadcast({
+            type: 'alert_message',
+            message: msg.message,
+            sender: msg.sender || 'Unknown',
+            timestamp: new Date(),
+            hotelId: msg.hotelId || 'hotel-1',
+          });
+        }
+      } catch (error) {
+        console.error('Error handling inbound WS message:', error);
+      }
+    });
+
     // Send updates every 5 seconds
     const interval = setInterval(sendUpdate, 5000);
     sendUpdate(); // Send initial update
@@ -281,6 +381,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         throughput,
         latency,
         activeGuests,
+        hotelId: "hotel-1" // Mock hotel ID
       });
 
       // Occasionally create new alerts
@@ -295,6 +396,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.createAlert({
           ...randomAlert,
           status: "open",
+          hotelId: "hotel-1" // Mock hotel ID
         });
       }
     } catch (error) {

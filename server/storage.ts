@@ -32,6 +32,14 @@ export interface IStorage {
   getChatMessages(userId: string, limit?: number): Promise<ChatMessage[]>;
   createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
   updateChatMessage(id: string, response: string): Promise<ChatMessage | undefined>;
+
+  // Notifications
+  getNotifications(hotelId?: string, limit?: number): Promise<{
+    id: string; title: string; message: string; type: 'alert' | 'news'; hotelId: string; timestamp: Date;
+  }[]>;
+  createNotification(n: { title: string; message: string; type: 'alert' | 'news'; hotelId: string }): Promise<{
+    id: string; title: string; message: string; type: 'alert' | 'news'; hotelId: string; timestamp: Date;
+  }>;
 }
 
 export class MemStorage implements IStorage {
@@ -41,6 +49,7 @@ export class MemStorage implements IStorage {
   private alerts: Map<string, Alert>;
   private powerConsumption: PowerConsumption[];
   private chatMessages: Map<string, ChatMessage>;
+  private notifications: Map<string, { id: string; title: string; message: string; type: 'alert' | 'news'; hotelId: string; timestamp: Date }>; 
 
   constructor() {
     this.users = new Map();
@@ -49,6 +58,7 @@ export class MemStorage implements IStorage {
     this.alerts = new Map();
     this.powerConsumption = [];
     this.chatMessages = new Map();
+    this.notifications = new Map();
     this.initializeData();
   }
 
@@ -59,7 +69,9 @@ export class MemStorage implements IStorage {
       username: "admin",
       password: "Amine2@@300",
       role: "IT",
-      name: "IT Administrator"
+      name: "IT Administrator",
+      createdAt: new Date(),
+      hotelId: null
     };
     
     const managerUser: User = {
@@ -67,7 +79,9 @@ export class MemStorage implements IStorage {
       username: "manager", 
       password: "Amine2@@300",
       role: "Manager",
-      name: "Hotel Manager"
+      name: "Hotel Manager",
+      createdAt: new Date(),
+      hotelId: null
     };
     
     this.users.set(adminUser.id, adminUser);
@@ -91,6 +105,7 @@ export class MemStorage implements IStorage {
         status: system.status,
         lastUpdated: new Date(),
         metadata: null,
+        hotelId: "hotel-1" // Mock hotel ID
       };
       this.systemMetrics.set(metrics.id, metrics);
     });
@@ -98,72 +113,87 @@ export class MemStorage implements IStorage {
     // Initialize network performance data
     const now = new Date();
     for (let i = 0; i < 24; i++) {
-      const timestamp = new Date(now.getTime() - (i * 60 * 60 * 1000));
       this.networkPerformance.push({
         id: randomUUID(),
-        timestamp,
-        currentLoad: 70 + Math.random() * 15,
-        throughput: 1.0 + Math.random() * 0.5,
-        latency: 10 + Math.random() * 5,
+        timestamp: new Date(now.getTime() - (i * 60 * 60 * 1000)),
+        currentLoad: Math.random() * 100,
+        throughput: Math.random() * 10 + 5,
+        latency: Math.floor(Math.random() * 50) + 10,
         activeGuests: 250 + Math.random() * 50,
+        hotelId: "hotel-1" // Mock hotel ID
       });
     }
 
     // Initialize alerts
-    const alertsData = [
-      {
-        systemType: "wifi",
-        systemName: "WiFi - Floor 3",
-        alertType: "performance",
-        severity: "warning",
-        message: "High latency detected",
-        status: "investigating",
-      },
-      {
-        systemType: "iptv",
-        systemName: "IPTV - Channel 5",
-        alertType: "quality",
-        severity: "info",
-        message: "Stream quality restored",
-        status: "resolved",
-      },
-      {
-        systemType: "security",
-        systemName: "Security - Camera 12",
-        alertType: "connectivity",
-        severity: "critical",
-        message: "Connection timeout",
-        status: "open",
-      },
+    const alertTypes = [
+      { systemType: "wifi", systemName: "Guest WiFi", alertType: "High Load", severity: "warning", message: "WiFi usage above 80% capacity" },
+      { systemType: "iptv", systemName: "IPTV System", alertType: "Storage Warning", severity: "info", message: "Storage usage at 75%" },
+      { systemType: "security", systemName: "Security System", alertType: "Motion Detected", severity: "info", message: "Motion detected in restricted area" },
+      { systemType: "server", systemName: "Main Server", alertType: "High CPU", severity: "medium", message: "CPU usage above 90%" },
     ];
 
-    alertsData.forEach(alertData => {
-      const alert: Alert = {
+    alertTypes.forEach(alert => {
+      const alertData: Alert = {
         id: randomUUID(),
-        ...alertData,
-        createdAt: new Date(Date.now() - Math.random() * 60 * 60 * 1000),
-        resolvedAt: alertData.status === "resolved" ? new Date() : null,
+        status: "open",
+        message: alert.message,
+        createdAt: new Date(),
+        hotelId: "hotel-1", // Mock hotel ID
+        systemType: alert.systemType,
+        systemName: alert.systemName,
+        alertType: alert.alertType,
+        severity: alert.severity,
+        resolvedAt: null,
       };
-      this.alerts.set(alert.id, alert);
+      this.alerts.set(alertData.id, alertData);
     });
 
-    // Initialize power consumption
-    this.powerConsumption.push({
-      id: randomUUID(),
-      timestamp: new Date(),
-      totalUsage: 8.4,
-      systemBreakdown: {
-        iptv: 2.1,
-        wifi: 1.8,
-        security: 1.2,
-        servers: 2.8,
-        other: 0.5,
-      },
-      recommendations: [
-        "Switch idle access points to low-power mode between 2AM-6AM to save 15% energy",
-        "Optimize IPTV server load balancing to reduce energy costs by 12%",
-      ],
-      potentialSavings: 12,
+    // Initialize power consumption data
+    for (let i = 0; i < 7; i++) {
+      this.powerConsumption.push({
+        id: randomUUID(),
+        timestamp: new Date(now.getTime() - (i * 24 * 60 * 60 * 1000)),
+        totalUsage: Math.random() * 100 + 20,
+        systemBreakdown: {
+          wifi: Math.random() * 30 + 10,
+          iptv: Math.random() * 25 + 8,
+          cctv: Math.random() * 15 + 5,
+          telephony: Math.random() * 20 + 6,
+          signage: Math.random() * 10 + 3,
+        },
+        recommendations: ['Enable power saving mode during off-peak hours', 'Consider LED lighting for digital signage'],
+        potentialSavings: 12,
+        hotelId: "hotel-1" // Mock hotel ID
+      });
+    }
+
+    // Initialize chat messages
+    const chatMessages = [
+      { message: "How do I check the WiFi status?", userId: adminUser.id },
+      { message: "What's the current system uptime?", userId: managerUser.id },
+      { message: "Are there any critical alerts?", userId: adminUser.id },
+    ];
+
+    chatMessages.forEach(msg => {
+      const chatMessage: ChatMessage = {
+        id: randomUUID(),
+        message: msg.message,
+        hotelId: "hotel-1", // Mock hotel ID
+        timestamp: new Date(),
+        userId: msg.userId,
+        response: null,
+      };
+      this.chatMessages.set(chatMessage.id, chatMessage);
+    });
+
+    // Initialize notifications (per hotel)
+    const initialNotifs = [
+      { title: 'WiFi maintenance scheduled', message: 'Maintenance at 23:00', type: 'news' as const, hotelId: 'hotel-1' },
+      { title: 'Camera offline', message: 'CCTV CAM-05 is offline', type: 'alert' as const, hotelId: 'hotel-1' },
+    ];
+    initialNotifs.forEach(n => {
+      const id = randomUUID();
+      this.notifications.set(id, { id, ...n, timestamp: new Date() });
     });
   }
 
@@ -181,7 +211,9 @@ export class MemStorage implements IStorage {
     const user: User = { 
       ...insertUser, 
       id,
-      role: insertUser.role || "admin"
+      role: insertUser.role || "admin",
+      createdAt: new Date(),
+      hotelId: null
     };
     this.users.set(id, user);
     return user;
@@ -198,7 +230,8 @@ export class MemStorage implements IStorage {
       ...metrics,
       id,
       lastUpdated: new Date(),
-      metadata: metrics.metadata || {}
+      metadata: metrics.metadata || {},
+      hotelId: "hotel-1" // Mock hotel ID
     };
     this.systemMetrics.set(id, systemMetrics);
     return systemMetrics;
@@ -234,6 +267,7 @@ export class MemStorage implements IStorage {
       ...performance,
       id: randomUUID(),
       timestamp: new Date(),
+      hotelId: "hotel-1" // Mock hotel ID
     };
     this.networkPerformance.push(networkPerf);
     return networkPerf;
@@ -260,6 +294,7 @@ export class MemStorage implements IStorage {
       status: alert.status || "open",
       createdAt: new Date(),
       resolvedAt: null,
+      hotelId: "hotel-1" // Mock hotel ID
     };
     this.alerts.set(id, newAlert);
     return newAlert;
@@ -301,6 +336,7 @@ export class MemStorage implements IStorage {
       timestamp: new Date(),
       recommendations: consumption.recommendations || null,
       potentialSavings: consumption.potentialSavings || null,
+      hotelId: "hotel-1" // Mock hotel ID
     };
     this.powerConsumption.push(powerConsumption);
     return powerConsumption;
@@ -322,6 +358,7 @@ export class MemStorage implements IStorage {
       userId: message.userId || null,
       timestamp: new Date(),
       response: null,
+      hotelId: "hotel-1" // Mock hotel ID
     };
     this.chatMessages.set(id, chatMessage);
     return chatMessage;
@@ -337,6 +374,21 @@ export class MemStorage implements IStorage {
     };
     this.chatMessages.set(id, updated);
     return updated;
+  }
+
+  async getNotifications(hotelId?: string, limit: number = 50) {
+    const list = Array.from(this.notifications.values())
+      .filter(n => (hotelId ? n.hotelId === hotelId : true))
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+      .slice(0, limit);
+    return list;
+  }
+
+  async createNotification(n: { title: string; message: string; type: 'alert' | 'news'; hotelId: string }) {
+    const id = randomUUID();
+    const created = { id, ...n, timestamp: new Date() };
+    this.notifications.set(id, created);
+    return created;
   }
 }
 

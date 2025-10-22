@@ -1,23 +1,14 @@
 import { useState } from "react";
-import { Search, Bell, Mic, User, LogOut } from "lucide-react";
+import { Search, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { useVoiceCommand } from "@/hooks/useVoiceCommand";
 import { useAuth } from "@/components/auth/AuthProvider";
+import NotificationDropdown from "./NotificationDropdown";
 
 export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
-  const { isListening, startListening, stopListening } = useVoiceCommand();
   const { user, logout } = useAuth();
-
-  const handleVoiceToggle = () => {
-    if (isListening) {
-      stopListening();
-    } else {
-      startListening();
-    }
-  };
 
   return (
     <header className="bg-white shadow-sm border-b border-slate-200">
@@ -38,19 +29,6 @@ export default function Header() {
           </div>
           
           <div className="flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleVoiceToggle}
-              className={`p-2 transition-colors duration-200 ${
-                isListening 
-                  ? 'text-blue-600 bg-blue-100' 
-                  : 'text-gray-400 hover:text-blue-600'
-              }`}
-            >
-              <Mic className={`h-5 w-5 ${isListening ? 'animate-pulse' : ''}`} />
-            </Button>
-            
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
@@ -62,14 +40,7 @@ export default function Header() {
               />
             </div>
             
-            <div className="relative">
-              <Button variant="ghost" size="sm" className="p-2 text-gray-400 hover:text-blue-600">
-                <Bell className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                  3
-                </span>
-              </Button>
-            </div>
+            <NotificationDropdown />
             
             {user && (
               <>

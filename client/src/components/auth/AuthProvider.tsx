@@ -53,6 +53,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const token = localStorage.getItem("vigon_token");
     const storedUser = localStorage.getItem("vigon_user");
     
+
+    
     if (!token) {
       setIsLoading(false);
       return;
@@ -79,7 +81,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     localStorage.removeItem("vigon_token");
     localStorage.removeItem("vigon_user");
     setUser(null);
-    window.location.href = "/login";
+    window.location.href = "/";
   };
 
   const value: AuthContextType = {

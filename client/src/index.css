@@ -37,6 +37,33 @@
   .animate-fade-in {
     animation: fadeIn 0.3s ease-in-out;
   }
+  
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .animate-float-delay-1 {
+    animation: float 6s ease-in-out infinite;
+    animation-delay: 1s;
+  }
+  
+  .animate-float-delay-2 {
+    animation: float 6s ease-in-out infinite;
+    animation-delay: 2s;
+  }
+  
+  .animate-float-delay-3 {
+    animation: float 6s ease-in-out infinite;
+    animation-delay: 3s;
+  }
+  
+  .shadow-3xl {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+  
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
 }
 
 @keyframes fadeIn {
@@ -47,6 +74,24 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+  }
+  to {
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.8), 0 0 40px rgba(59, 130, 246, 0.3);
   }
 }
 

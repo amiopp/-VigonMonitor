@@ -1,0 +1,615 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vigon Systems - Hotel IT Infrastructure Management Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'vigon-blue': '#2563EB',
+                        'vigon-light': '#3B82F6',
+                        'vigon-dark': '#1E40AF',
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-50 font-inter">
+    <!-- @COMPONENT: Header [navigation and user info] -->
+    <header class="bg-white shadow-sm border-b border-slate-200">
+        <div class="px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-vigon-blue rounded-lg flex items-center justify-center">
+                            <i class="fas fa-network-wired text-white text-sm"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-semibold text-slate-900" data-bind="company.name">Vigon Systems</h1>
+                            <p class="text-sm text-slate-500">Hotel IT Infrastructure Management</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- Voice Command Button -->
+                    <button id="voiceBtn" class="p-2 text-slate-400 hover:text-vigon-blue transition-colors duration-200" data-event="click:toggleVoiceCommand">
+                        <i class="fas fa-microphone text-lg"></i>
+                    </button>
+                    
+                    <!-- Search -->
+                    <div class="relative">
+                        <input type="text" placeholder="Search systems..." class="pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vigon-blue focus:border-transparent w-64">
+                        <i class="fas fa-search absolute left-3 top-3 text-slate-400"></i>
+                    </div>
+                    
+                    <!-- Notifications -->
+                    <div class="relative">
+                        <button class="p-2 text-slate-400 hover:text-vigon-blue transition-colors duration-200">
+                            <i class="fas fa-bell text-lg"></i>
+                            <span class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center" data-bind="notifications.count">3</span>
+                        </button>
+                    </div>
+                    
+                    <!-- User Profile -->
+                    <div class="flex items-center space-x-2">
+                        <div class="text-right">
+                            <p class="text-sm font-medium text-slate-900" data-bind="user.name">System Admin</p>
+                            <p class="text-xs text-slate-500" data-bind="user.role">IT Manager</p>
+                        </div>
+                        <div class="w-8 h-8 bg-vigon-blue rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-white text-sm"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: Header -->
+
+    <div class="flex h-screen">
+        <!-- @COMPONENT: Sidebar [navigation menu] -->
+        <aside class="w-64 bg-white shadow-sm border-r border-slate-200">
+            <nav class="p-4 space-y-2">
+                <a href="#" class="flex items-center space-x-3 px-3 py-2 bg-vigon-blue text-white rounded-lg">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                    <i class="fas fa-tv"></i>
+                    <span>IPTV Systems</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                    <i class="fas fa-wifi"></i>
+                    <span>WiFi Network</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Security Systems</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                    <i class="fas fa-server"></i>
+                    <span>Infrastructure</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                    <i class="fas fa-leaf"></i>
+                    <span>Sustainability</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Alerts</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
+        <!-- @END_COMPONENT: Sidebar -->
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-auto">
+            <div class="p-6">
+                <!-- @COMPONENT: DashboardHeader [page title and summary] -->
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-slate-900">Infrastructure Dashboard</h2>
+                    <p class="text-slate-600">Real-time monitoring and management of hotel IT systems</p>
+                </div>
+                <!-- @END_COMPONENT: DashboardHeader -->
+
+                <!-- @COMPONENT: KPICards [main metrics overview] -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <!-- Server Uptime Card -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-server text-green-600 text-xl"></i>
+                            </div>
+                            <div class="flex items-center text-green-600 text-sm font-medium">
+                                <i class="fas fa-arrow-up text-xs mr-1"></i>
+                                <span data-bind="metrics.server.trend">+0.2%</span>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <h3 class="text-2xl font-bold text-slate-900" data-bind="metrics.server.uptime">99.8%</h3>
+                            <p class="text-slate-600 font-medium">Server Uptime</p>
+                        </div>
+                    </div>
+
+                    <!-- Network Load Card -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-wifi text-yellow-600 text-xl"></i>
+                            </div>
+                            <div class="flex items-center text-yellow-600 text-sm font-medium">
+                                <i class="fas fa-arrow-up text-xs mr-1"></i>
+                                <span data-bind="metrics.network.trend">+5.1%</span>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <h3 class="text-2xl font-bold text-slate-900" data-bind="metrics.network.load">73%</h3>
+                            <p class="text-slate-600 font-medium">Network Load</p>
+                        </div>
+                    </div>
+
+                    <!-- Active Guests Card -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-users text-blue-600 text-xl"></i>
+                            </div>
+                            <div class="flex items-center text-blue-600 text-sm font-medium">
+                                <i class="fas fa-arrow-up text-xs mr-1"></i>
+                                <span data-bind="metrics.guests.trend">+12.3%</span>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <h3 class="text-2xl font-bold text-slate-900" data-bind="metrics.guests.active">287</h3>
+                            <p class="text-slate-600 font-medium">Active Guests</p>
+                        </div>
+                    </div>
+
+                    <!-- System Alerts Card -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                            </div>
+                            <div class="flex items-center text-red-600 text-sm font-medium">
+                                <i class="fas fa-arrow-down text-xs mr-1"></i>
+                                <span data-bind="metrics.alerts.trend">-2</span>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <h3 class="text-2xl font-bold text-slate-900" data-bind="metrics.alerts.count">4</h3>
+                            <p class="text-slate-600 font-medium">System Alerts</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: KPICards -->
+
+                <!-- @COMPONENT: MainGrid [primary dashboard content] -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <!-- System Status -->
+                    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-slate-900">System Status</h3>
+                            <div class="flex items-center space-x-2 text-sm text-green-600">
+                                <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+                                <span>All Systems Operational</span>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <!-- Main Server -->
+                            <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-server text-green-600"></i>
+                                    <div>
+                                        <p class="font-medium text-slate-900" data-bind="systems.mainServer.name">Main Server</p>
+                                        <p class="text-sm text-slate-600">Uptime: <span data-bind="systems.mainServer.uptime">99.9%</span></p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded">Healthy</span>
+                                    <i class="fas fa-check-circle text-green-500"></i>
+                                </div>
+                            </div>
+
+                            <!-- Database -->
+                            <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-database text-green-600"></i>
+                                    <div>
+                                        <p class="font-medium text-slate-900" data-bind="systems.database.name">Database</p>
+                                        <p class="text-sm text-slate-600">Uptime: <span data-bind="systems.database.uptime">99.8%</span></p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded">Healthy</span>
+                                    <i class="fas fa-check-circle text-green-500"></i>
+                                </div>
+                            </div>
+
+                            <!-- Guest WiFi -->
+                            <div class="flex items-center justify-between p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-wifi text-yellow-600"></i>
+                                    <div>
+                                        <p class="font-medium text-slate-900" data-bind="systems.guestWifi.name">Guest WiFi</p>
+                                        <p class="text-sm text-slate-600">Uptime: <span data-bind="systems.guestWifi.uptime">97.5%</span></p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs font-medium rounded">Warning</span>
+                                    <i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                                </div>
+                            </div>
+
+                            <!-- Security System -->
+                            <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg border border-green-200">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-shield-alt text-green-600"></i>
+                                    <div>
+                                        <p class="font-medium text-slate-900" data-bind="systems.security.name">Security System</p>
+                                        <p class="text-sm text-slate-600">Uptime: <span data-bind="systems.security.uptime">100%</span></p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded">Healthy</span>
+                                    <i class="fas fa-check-circle text-green-500"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Network Performance -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-slate-900">Network Performance</h3>
+                            <div class="flex items-center space-x-2 text-sm text-green-600">
+                                <i class="fas fa-arrow-up text-xs"></i>
+                                <span data-bind="network.performance.trend">+5.2% from yesterday</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <p class="text-xs text-slate-500 mb-2">Last 24 hours</p>
+                            <div class="h-32 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg flex items-end justify-between p-2">
+                                <!-- Chart bars simulation -->
+                                <div class="w-4 bg-blue-300 rounded-t" style="height: 20%"></div>
+                                <div class="w-4 bg-blue-400 rounded-t" style="height: 35%"></div>
+                                <div class="w-4 bg-blue-500 rounded-t" style="height: 60%"></div>
+                                <div class="w-4 bg-blue-600 rounded-t" style="height: 80%"></div>
+                                <div class="w-4 bg-blue-700 rounded-t" style="height: 70%"></div>
+                                <div class="w-4 bg-blue-600 rounded-t" style="height: 90%"></div>
+                                <div class="w-4 bg-blue-500 rounded-t" style="height: 75%"></div>
+                            </div>
+                            <div class="flex justify-between text-xs text-slate-400 mt-1">
+                                <span>00:00</span>
+                                <span>04:00</span>
+                                <span>08:00</span>
+                                <span>12:00</span>
+                                <span>16:00</span>
+                                <span>20:00</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-slate-600">Current Load</span>
+                                <span class="font-semibold text-slate-900" data-bind="network.currentLoad">73%</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-slate-600">Throughput</span>
+                                <span class="font-semibold text-slate-900" data-bind="network.throughput">1.2GB/s</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-slate-600">Latency</span>
+                                <span class="font-semibold text-slate-900" data-bind="network.latency">12ms</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: MainGrid -->
+
+                <!-- @COMPONENT: SecondaryGrid [additional dashboard sections] -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- IPTV Performance -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-slate-900">IPTV Performance</h3>
+                            <button class="text-sm text-vigon-blue hover:text-vigon-dark">View Details</button>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-tv text-slate-600"></i>
+                                    <span class="text-sm font-medium text-slate-900">Active Streams</span>
+                                </div>
+                                <span class="font-semibold text-slate-900" data-bind="iptv.activeStreams">187</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-signal text-slate-600"></i>
+                                    <span class="text-sm font-medium text-slate-900">Signal Quality</span>
+                                </div>
+                                <span class="font-semibold text-green-600" data-bind="iptv.signalQuality">Excellent</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-exclamation-circle text-slate-600"></i>
+                                    <span class="text-sm font-medium text-slate-900">Connection Issues</span>
+                                </div>
+                                <span class="font-semibold text-slate-900" data-bind="iptv.issues">2</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sustainability Metrics -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-slate-900">Power Consumption</h3>
+                            <button class="text-sm text-vigon-blue hover:text-vigon-dark">Optimize</button>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-leaf text-green-600"></i>
+                                    <span class="text-sm font-medium text-slate-900">Current Usage</span>
+                                </div>
+                                <span class="font-semibold text-slate-900" data-bind="sustainability.currentUsage">8.4 kW</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-chart-line text-green-600"></i>
+                                    <span class="text-sm font-medium text-slate-900">Daily Average</span>
+                                </div>
+                                <span class="font-semibold text-slate-900" data-bind="sustainability.dailyAverage">9.2 kW</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-piggy-bank text-green-600"></i>
+                                    <span class="text-sm font-medium text-slate-900">Potential Savings</span>
+                                </div>
+                                <span class="font-semibold text-green-600" data-bind="sustainability.savings">12%</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                            <p class="text-sm text-blue-800 font-medium">💡 AI Recommendation</p>
+                            <p class="text-xs text-blue-700 mt-1" data-bind="sustainability.recommendation">Switch idle access points to low-power mode between 2AM-6AM to save 15% energy.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: SecondaryGrid -->
+
+                <!-- @COMPONENT: AlertsAndChatbot [alerts table and AI assistant] -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Recent Alerts -->
+                    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-slate-900">Recent Alerts</h3>
+                            <button class="text-sm text-vigon-blue hover:text-vigon-dark">View All</button>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="border-b border-slate-200">
+                                        <th class="text-left py-3 text-sm font-medium text-slate-600">System</th>
+                                        <th class="text-left py-3 text-sm font-medium text-slate-600">Alert</th>
+                                        <th class="text-left py-3 text-sm font-medium text-slate-600">Severity</th>
+                                        <th class="text-left py-3 text-sm font-medium text-slate-600">Time</th>
+                                        <th class="text-left py-3 text-sm font-medium text-slate-600">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="space-y-3">
+                                    <!-- @MAP: alerts.map(alert => ( -->
+                                    <tr class="border-b border-slate-100" data-mock="true">
+                                        <td class="py-3">
+                                            <div class="flex items-center space-x-2">
+                                                <i class="fas fa-wifi text-yellow-500"></i>
+                                                <span class="text-sm font-medium text-slate-900">WiFi - Floor 3</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 text-sm text-slate-600">High latency detected</td>
+                                        <td class="py-3">
+                                            <span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs font-medium rounded">Medium</span>
+                                        </td>
+                                        <td class="py-3 text-sm text-slate-500">2 min ago</td>
+                                        <td class="py-3">
+                                            <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">Investigating</span>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr class="border-b border-slate-100" data-mock="true">
+                                        <td class="py-3">
+                                            <div class="flex items-center space-x-2">
+                                                <i class="fas fa-tv text-green-500"></i>
+                                                <span class="text-sm font-medium text-slate-900">IPTV - Channel 5</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 text-sm text-slate-600">Stream quality restored</td>
+                                        <td class="py-3">
+                                            <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded">Info</span>
+                                        </td>
+                                        <td class="py-3 text-sm text-slate-500">5 min ago</td>
+                                        <td class="py-3">
+                                            <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded">Resolved</span>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr class="border-b border-slate-100" data-mock="true">
+                                        <td class="py-3">
+                                            <div class="flex items-center space-x-2">
+                                                <i class="fas fa-shield-alt text-red-500"></i>
+                                                <span class="text-sm font-medium text-slate-900">Security - Camera 12</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 text-sm text-slate-600">Connection timeout</td>
+                                        <td class="py-3">
+                                            <span class="px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded">High</span>
+                                        </td>
+                                        <td class="py-3 text-sm text-slate-500">8 min ago</td>
+                                        <td class="py-3">
+                                            <span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs font-medium rounded">In Progress</span>
+                                        </td>
+                                    </tr>
+                                    <!-- @END_MAP )) -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- AI Chatbot -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-slate-900">AI Assistant</h3>
+                            <div class="flex items-center space-x-2 text-green-600">
+                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                <span class="text-sm">Online</span>
+                            </div>
+                        </div>
+                        
+                        <!-- @FUNCTIONALITY: This chatbot should implement natural language processing for IT queries -->
+                        <div class="space-y-4 mb-4 h-64 overflow-y-auto">
+                            <!-- Chat Messages -->
+                            <div class="flex space-x-2" data-mock="true">
+                                <div class="w-8 h-8 bg-vigon-blue rounded-full flex items-center justify-center">
+                                    <i class="fas fa-robot text-white text-sm"></i>
+                                </div>
+                                <div class="flex-1 bg-slate-100 rounded-lg p-3">
+                                    <p class="text-sm text-slate-900">Hello! I'm your IT assistant. How can I help you today?</p>
+                                    <p class="text-xs text-slate-500 mt-1">Just now</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex space-x-2 justify-end" data-mock="true">
+                                <div class="flex-1 bg-vigon-blue rounded-lg p-3 text-right max-w-xs ml-auto">
+                                    <p class="text-sm text-white">Why is IPTV down on floor 2?</p>
+                                    <p class="text-xs text-blue-200 mt-1">2 min ago</p>
+                                </div>
+                                <div class="w-8 h-8 bg-slate-300 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-slate-600 text-sm"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="flex space-x-2" data-mock="true">
+                                <div class="w-8 h-8 bg-vigon-blue rounded-full flex items-center justify-center">
+                                    <i class="fas fa-robot text-white text-sm"></i>
+                                </div>
+                                <div class="flex-1 bg-slate-100 rounded-lg p-3">
+                                    <p class="text-sm text-slate-900">I've checked the IPTV system on floor 2. The main server is responding but there's a network switch issue. I recommend checking switch port 24 on floor 2 - it's showing connection errors.</p>
+                                    <p class="text-xs text-slate-500 mt-1">1 min ago</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Chat Input -->
+                        <div class="flex space-x-2">
+                            <input type="text" placeholder="Ask me anything about the systems..." class="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-vigon-blue focus:border-transparent text-sm" data-event="keypress:handleChatInput">
+                            <button class="px-4 py-2 bg-vigon-blue text-white rounded-lg hover:bg-vigon-dark transition-colors duration-200" data-event="click:sendChatMessage">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_COMPONENT: AlertsAndChatbot -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Voice Command Modal -->
+    <!-- @STATE: isVoiceModalOpen:boolean = false -->
+    <div id="voiceModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-8 max-w-md w-full mx-4">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-vigon-blue rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-microphone text-white text-2xl animate-pulse"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-slate-900 mb-2">Voice Command</h3>
+                <p class="text-slate-600 mb-6">Listening for your command...</p>
+                <div class="space-y-2 text-sm text-slate-500">
+                    <p>"Show WiFi performance for floor 2"</p>
+                    <p>"What was IPTV uptime last week?"</p>
+                    <p>"Display security camera status"</p>
+                </div>
+                <button id="stopVoice" class="mt-6 px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200">
+                    Stop Listening
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // TODO: Implement business logic, API calls, or state management
+            
+            // Voice Command Simulation
+            const voiceBtn = document.getElementById('voiceBtn');
+            const voiceModal = document.getElementById('voiceModal');
+            const stopVoiceBtn = document.getElementById('stopVoice');
+            
+            voiceBtn.addEventListener('click', () => {
+                voiceModal.classList.remove('hidden');
+                voiceModal.classList.add('flex');
+                // TODO: Implement Web Speech API integration
+            });
+            
+            stopVoiceBtn.addEventListener('click', () => {
+                voiceModal.classList.add('hidden');
+                voiceModal.classList.remove('flex');
+            });
+            
+            // Real-time data simulation
+            setInterval(() => {
+                // TODO: Implement WebSocket connection for real-time updates
+                // Simulate metric updates
+                const metrics = {
+                    serverUptime: (99.7 + Math.random() * 0.3).toFixed(1),
+                    networkLoad: Math.floor(70 + Math.random() * 10),
+                    activeGuests: Math.floor(280 + Math.random() * 20),
+                    alerts: Math.floor(3 + Math.random() * 4)
+                };
+                
+                // Update display values would happen here
+                console.log('Updated metrics:', metrics);
+            }, 5000);
+            
+            // Chatbot interaction simulation
+            function handleChatInput(event) {
+                if (event.key === 'Enter') {
+                    // TODO: Implement OpenAI API integration for natural language processing
+                    console.log('Sending message to AI assistant');
+                }
+            }
+            
+            // Add event listeners for mock interactions
+            document.addEventListener('DOMContentLoaded', function() {
+                // TODO: Initialize real-time monitoring connections
+                // TODO: Setup voice recognition with Web Speech API
+                // TODO: Configure AI chatbot with OpenAI integration
+                console.log('Vigon Systems Dashboard initialized');
+            });
+        })();
+    </script>
+</body>
+</html>

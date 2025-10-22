@@ -5,20 +5,19 @@ import {
   Wifi, 
   Shield, 
   Server, 
-  Leaf, 
   AlertTriangle, 
   BarChart3, 
-  Settings 
+  Settings
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navigation = [
-  { name: "Dashboard", href: "/", icon: LayoutDashboard },
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "IPTV Systems", href: "/iptv", icon: Tv },
   { name: "WiFi Network", href: "/wifi", icon: Wifi },
   { name: "Security Systems", href: "/security", icon: Shield },
   { name: "Infrastructure", href: "/infrastructure", icon: Server },
-  { name: "Sustainability", href: "/sustainability", icon: Leaf },
+
   { name: "Alerts", href: "/alerts", icon: AlertTriangle },
   { name: "Analytics", href: "/analytics", icon: BarChart3 },
   { name: "Settings", href: "/settings", icon: Settings },

@@ -22,9 +22,12 @@ export default function KPICards() {
     );
   }
 
-  const serverMetrics = overview?.systemMetrics?.find((m: any) => m.systemType === "server") || {};
-  const networkMetrics = overview?.networkPerformance || {};
-  const alertsCount = overview?.alertsCount || 0;
+  // Safe access with default values
+  const safeOverview = overview || {};
+  const systemMetrics = Array.isArray((safeOverview as any).systemMetrics) ? (safeOverview as any).systemMetrics : [];
+  const serverMetrics = systemMetrics.find((m: any) => m.systemType === "server") || {};
+  const networkMetrics = (safeOverview as any).networkPerformance || {};
+  const alertsCount = (safeOverview as any).alertsCount || 0;
 
   const cards = [
     {

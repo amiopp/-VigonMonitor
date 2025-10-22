@@ -1,0 +1,604 @@
+{
+  "diagramme_classes": {
+    "titre": "Vigon Monitor System - Diagramme de Classes",
+    "description": "Architecture complète du système de gestion d'infrastructure IT hôtelière",
+    "couches": {
+      "1_data_layer": {
+        "nom": "Couche Données (Data Layer)",
+        "description": "Entités métier et gestion des données",
+        "entites": {
+          "Hotel": {
+            "attributs": [
+              "id: String",
+              "name: String", 
+              "code: String",
+              "location: String",
+              "rooms: Integer",
+              "status: String",
+              "createdAt: Date",
+              "metadata: Object"
+            ],
+            "relations": [
+              "||--o{ HotelService : has services",
+              "||--o{ SystemMetrics : monitors",
+              "||--o{ NetworkPerformance : tracks",
+              "||--o{ Alert : generates",
+              "||--o{ PowerConsumption : measures",
+              "||--o{ ChatMessage : contains",
+              "||--o{ HotelFinancials : tracks finances",
+              "||--o{ Notification : receives"
+            ]
+          },
+          "User": {
+            "attributs": [
+              "id: String",
+              "username: String",
+              "password: String", 
+              "role: String",
+              "name: String",
+              "hotelId: String",
+              "createdAt: Date"
+            ],
+            "relations": [
+              "||--o{ ChatMessage : sends",
+              "}o--|| Hotel : belongs to"
+            ]
+          },
+          "HotelService": {
+            "attributs": [
+              "id: String",
+              "hotelId: String",
+              "serviceType: String",
+              "status: String",
+              "monthlyCost: Decimal",
+              "monthlyRevenue: Decimal",
+              "uptime: Float",
+              "lastUpdated: Date",
+              "metadata: Object"
+            ]
+          },
+          "SystemMetrics": {
+            "attributs": [
+              "id: String",
+              "hotelId: String",
+              "systemType: String",
+              "systemName: String",
+              "uptime: Float",
+              "status: String",
+              "lastUpdated: Date",
+              "metadata: Object"
+            ]
+          },
+          "NetworkPerformance": {
+            "attributs": [
+              "id: String",
+              "hotelId: String",
+              "timestamp: Date",
+              "currentLoad: Float",
+              "throughput: Float",
+              "latency: Integer",
+              "activeGuests: Integer"
+            ]
+          },
+          "Alert": {
+            "attributs": [
+              "id: String",
+              "hotelId: String",
+              "systemType: String",
+              "systemName: String",
+              "alertType: String",
+              "severity: String",
+              "message: String",
+              "status: String",
+              "createdAt: Date",
+              "resolvedAt: Date"
+            ]
+          },
+          "PowerConsumption": {
+            "attributs": [
+              "id: String",
+              "hotelId: String",
+              "timestamp: Date",
+              "totalUsage: Float",
+              "systemBreakdown: Object",
+              "recommendations: String[]",
+              "potentialSavings: Float"
+            ]
+          },
+          "ChatMessage": {
+            "attributs": [
+              "id: String",
+              "userId: String",
+              "hotelId: String",
+              "message: String",
+              "response: String",
+              "timestamp: Date"
+            ]
+          },
+          "HotelFinancials": {
+            "attributs": [
+              "id: String",
+              "hotelId: String",
+              "month: String",
+              "totalITCost: Decimal",
+              "totalITRevenue: Decimal",
+              "energyCost: Decimal",
+              "maintenanceCost: Decimal",
+              "createdAt: Date"
+            ]
+          },
+          "Notification": {
+            "attributs": [
+              "id: String",
+              "title: String",
+              "message: String",
+              "type: String",
+              "category: String",
+              "timestamp: Date",
+              "read: Boolean",
+              "priority: String",
+              "source: String",
+              "actionUrl: String"
+            ]
+          }
+        }
+      },
+      "2_storage_layer": {
+        "nom": "Couche Stockage (Storage Layer)",
+        "description": "Interface et implémentation de la persistance des données",
+        "composants": {
+          "IStorage": {
+            "type": "interface",
+            "methodes": [
+              "getUser(id: String): Promise<User>",
+              "getUserByUsername(username: String): Promise<User>",
+              "createUser(user: InsertUser): Promise<User>",
+              "getSystemMetrics(): Promise<SystemMetrics[]>",
+              "createSystemMetrics(metrics: InsertSystemMetrics): Promise<SystemMetrics>",
+              "updateSystemMetrics(id: String, metrics: Partial<SystemMetrics>): Promise<SystemMetrics>",
+              "getLatestNetworkPerformance(): Promise<NetworkPerformance>",
+              "getNetworkPerformanceHistory(hours: Number): Promise<NetworkPerformance[]>",
+              "createNetworkPerformance(performance: InsertNetworkPerformance): Promise<NetworkPerformance>",
+              "getAlerts(limit: Number): Promise<Alert[]>",
+              "getOpenAlerts(): Promise<Alert[]>",
+              "createAlert(alert: InsertAlert): Promise<Alert>",
+              "updateAlert(id: String, alert: Partial<Alert>): Promise<Alert>",
+              "getLatestPowerConsumption(): Promise<PowerConsumption>",
+              "getPowerConsumptionHistory(days: Number): Promise<PowerConsumption[]>",
+              "createPowerConsumption(consumption: InsertPowerConsumption): Promise<PowerConsumption>",
+              "getChatMessages(userId: String, limit: Number): Promise<ChatMessage[]>",
+              "createChatMessage(message: InsertChatMessage): Promise<ChatMessage>",
+              "updateChatMessage(id: String, response: String): Promise<ChatMessage>",
+              "getNotifications(hotelId: String, limit: Number): Promise<Notification[]>",
+              "createNotification(notification: Object): Promise<Notification>"
+            ]
+          },
+          "MemStorage": {
+            "type": "class",
+            "implements": "IStorage",
+            "attributs": [
+              "users: Map<String, User>",
+              "systemMetrics: Map<String, SystemMetrics>",
+              "networkPerformance: NetworkPerformance[]",
+              "alerts: Map<String, Alert>",
+              "powerConsumption: PowerConsumption[]",
+              "chatMessages: Map<String, ChatMessage>",
+              "notifications: Map<String, Notification>"
+            ],
+            "methodes": [
+              "initializeData(): void",
+              "[toutes les méthodes de IStorage]"
+            ]
+          }
+        }
+      },
+      "3_api_layer": {
+        "nom": "Couche API (API Layer)",
+        "description": "Serveur Express, WebSocket et services externes",
+        "composants": {
+          "ExpressApp": {
+            "methodes": [
+              "registerRoutes(app: Express): Promise<Server>",
+              "setupVite(app: Express, server: Server): void",
+              "serveStatic(app: Express): void"
+            ],
+            "relations": [
+              "--> IStorage : uses",
+              "--> WebSocketServer : manages",
+              "--> OpenAIService : uses"
+            ]
+          },
+          "WebSocketServer": {
+            "methodes": [
+              "onConnection(ws: WebSocket): void",
+              "broadcast(payload: Object): void",
+              "sendUpdate(): void"
+            ],
+            "relations": [
+              "--> IStorage : reads from"
+            ]
+          },
+          "OpenAIService": {
+            "methodes": [
+              "processChatMessage(message: String): Promise<String>",
+              "processVoiceCommand(transcript: String): Promise<Object>"
+            ]
+          }
+        }
+      },
+      "4_contexts_layer": {
+        "nom": "Couche Frontend - Contextes",
+        "description": "Gestion d'état global avec React Context",
+        "composants": {
+          "AuthContext": {
+            "attributs": [
+              "user: User",
+              "isAuthenticated: Boolean",
+              "isLoading: Boolean"
+            ],
+            "methodes": [
+              "logout(): void"
+            ],
+            "relations": [
+              "--> APIService : uses"
+            ]
+          },
+          "NotificationContext": {
+            "attributs": [
+              "notifications: Notification[]",
+              "unreadCount: Number"
+            ],
+            "methodes": [
+              "addNotification(notification: Object): void",
+              "markAsRead(id: String): void",
+              "markAllAsRead(): void",
+              "removeNotification(id: String): void",
+              "clearAllNotifications(): void",
+              "getNotificationsByCategory(category: String): Notification[]",
+              "getNotificationsByType(type: String): Notification[]"
+            ],
+            "relations": [
+              "--> APIService : uses"
+            ]
+          }
+        }
+      },
+      "5_hooks_layer": {
+        "nom": "Couche Frontend - Hooks",
+        "description": "Hooks personnalisés pour la logique métier",
+        "composants": {
+          "useAuth": {
+            "attributs": [
+              "user: User",
+              "isAuthenticated: Boolean",
+              "isLoading: Boolean"
+            ],
+            "methodes": [
+              "logout(): void"
+            ],
+            "relations": [
+              "--> AuthContext : provides"
+            ]
+          },
+          "useWebSocket": {
+            "attributs": [
+              "isConnected: Boolean",
+              "lastMessage: String"
+            ],
+            "methodes": [
+              "sendMessage(message: String): void"
+            ],
+            "relations": [
+              "--> WebSocketServer : connects to"
+            ]
+          },
+          "useNotifications": {
+            "attributs": [
+              "notifications: Notification[]",
+              "unreadCount: Number"
+            ],
+            "methodes": [
+              "addNotification(notification: Object): void",
+              "markAsRead(id: String): void",
+              "markAllAsRead(): void",
+              "removeNotification(id: String): void",
+              "clearAllNotifications(): void",
+              "getNotificationsByCategory(category: String): Notification[]",
+              "getNotificationsByType(type: String): Notification[]"
+            ],
+            "relations": [
+              "--> NotificationContext : provides"
+            ]
+          },
+          "useVoiceCommand": {
+            "attributs": [
+              "isListening: Boolean",
+              "transcript: String"
+            ],
+            "methodes": [
+              "startListening(): void",
+              "stopListening(): void",
+              "processCommand(command: String): void"
+            ]
+          }
+        }
+      },
+      "6_components_layer": {
+        "nom": "Couche Frontend - Composants Dashboard",
+        "description": "Composants React pour l'interface utilisateur",
+        "composants": {
+          "Dashboard": {
+            "methodes": [
+              "render(): JSX.Element"
+            ],
+            "relations": [
+              "--> SystemStatus : contains",
+              "--> NetworkPerformanceComponent : contains",
+              "--> AIChatbot : contains",
+              "--> AlertsTable : contains",
+              "--> KPICards : contains",
+              "--> HotelSelector : contains"
+            ]
+          },
+          "SystemStatus": {
+            "methodes": [
+              "render(): JSX.Element"
+            ],
+            "relations": [
+              "--> SystemMetrics : displays"
+            ]
+          },
+          "NetworkPerformanceComponent": {
+            "methodes": [
+              "render(): JSX.Element"
+            ],
+            "relations": [
+              "--> NetworkPerformance : displays"
+            ]
+          },
+          "AIChatbot": {
+            "attributs": [
+              "message: String",
+              "isTyping: Boolean"
+            ],
+            "methodes": [
+              "sendMessage(message: String): void",
+              "render(): JSX.Element"
+            ],
+            "relations": [
+              "--> OpenAIClient : uses",
+              "--> ChatMessage : manages"
+            ]
+          },
+          "AlertsTable": {
+            "methodes": [
+              "render(): JSX.Element"
+            ],
+            "relations": [
+              "--> Alert : displays"
+            ]
+          },
+          "KPICards": {
+            "methodes": [
+              "render(): JSX.Element"
+            ],
+            "relations": [
+              "--> HotelFinancials : displays"
+            ]
+          },
+          "HotelSelector": {
+            "attributs": [
+              "selectedHotel: String"
+            ],
+            "methodes": [
+              "onHotelChange(hotelId: String): void",
+              "render(): JSX.Element"
+            ],
+            "relations": [
+              "--> Hotel : manages"
+            ]
+          },
+          "MultiHotelDashboard": {
+            "methodes": [
+              "render(): JSX.Element"
+            ],
+            "relations": [
+              "--> Hotel : manages multiple"
+            ]
+          },
+          "ManagerDashboard": {
+            "methodes": [
+              "render(): JSX.Element"
+            ],
+            "relations": [
+              "--> MultiHotelDashboard : extends",
+              "--> HotelFinancials : displays"
+            ]
+          },
+          "StaffDashboard": {
+            "methodes": [
+              "render(): JSX.Element"
+            ],
+            "relations": [
+              "--> ITDashboard : extends",
+              "--> Alert : manages"
+            ]
+          },
+          "ITDashboard": {
+            "methodes": [
+              "render(): JSX.Element"
+            ],
+            "relations": [
+              "--> SystemMetrics : monitors"
+            ]
+          }
+        }
+      },
+      "7_ui_components_layer": {
+        "nom": "Couche Frontend - Composants UI",
+        "description": "Composants d'interface utilisateur réutilisables",
+        "composants": {
+          "Header": {
+            "methodes": [
+              "render(): JSX.Element"
+            ]
+          },
+          "Sidebar": {
+            "methodes": [
+              "render(): JSX.Element"
+            ]
+          },
+          "NotificationDropdown": {
+            "methodes": [
+              "render(): JSX.Element"
+            ]
+          },
+          "GlobalNotificationManager": {
+            "methodes": [
+              "render(): JSX.Element"
+            ]
+          },
+          "VoiceCommandModal": {
+            "attributs": [
+              "isOpen: Boolean"
+            ],
+            "methodes": [
+              "open(): void",
+              "close(): void",
+              "render(): JSX.Element"
+            ],
+            "relations": [
+              "--> useVoiceCommand : uses"
+            ]
+          },
+          "ChatFloatingButton": {
+            "attributs": [
+              "isOpen: Boolean"
+            ],
+            "methodes": [
+              "toggle(): void",
+              "render(): JSX.Element"
+            ]
+          }
+        }
+      },
+      "8_pages_layer": {
+        "nom": "Couche Frontend - Pages",
+        "description": "Pages de navigation et routage",
+        "composants": {
+          "LoginPage": {
+            "methodes": [
+              "render(): JSX.Element"
+            ],
+            "relations": [
+              "--> DashboardPage : navigates to"
+            ]
+          },
+          "DashboardPage": {
+            "methodes": [
+              "render(): JSX.Element"
+            ],
+            "relations": [
+              "--> AlertsPage : navigates to",
+              "--> InfrastructurePage : navigates to",
+              "--> FinancialReports : navigates to",
+              "--> AnalyticsPage : navigates to",
+              "--> SettingsPage : navigates to"
+            ]
+          },
+          "AlertsPage": {
+            "methodes": [
+              "render(): JSX.Element"
+            ]
+          },
+          "InfrastructurePage": {
+            "methodes": [
+              "render(): JSX.Element"
+            ]
+          },
+          "NotFoundPage": {
+            "methodes": [
+              "render(): JSX.Element"
+            ]
+          }
+        }
+      },
+      "9_services_layer": {
+        "nom": "Couche Frontend - Services",
+        "description": "Services pour la communication et la gestion des données",
+        "composants": {
+          "QueryClient": {
+            "methodes": [
+              "invalidateQueries(queryKey: String[]): void",
+              "setQueryData(queryKey: String[], data: Object): void",
+              "getQueryData(queryKey: String[]): Object"
+            ]
+          },
+          "APIService": {
+            "methodes": [
+              "request(method: String, endpoint: String, data: Object): Promise<Response>",
+              "get(endpoint: String): Promise<Response>",
+              "post(endpoint: String, data: Object): Promise<Response>",
+              "put(endpoint: String, data: Object): Promise<Response>",
+              "delete(endpoint: String): Promise<Response>"
+            ]
+          },
+          "OpenAIClient": {
+            "methodes": [
+              "processMessage(message: String): Promise<String>",
+              "processVoiceCommand(transcript: String): Promise<Object>"
+            ]
+          }
+        }
+      }
+    },
+    "fonctionnalites_cles": [
+      "Multi-hôtels : Gestion de plusieurs établissements",
+      "Rôles différenciés : Manager, Staff, IT avec dashboards spécialisés",
+      "Temps réel : WebSocket pour mises à jour live",
+      "IA intégrée : Chatbot et commandes vocales",
+      "Monitoring complet : WiFi, IPTV, sécurité, énergie",
+      "Interface moderne : React + TypeScript + Tailwind CSS"
+    ],
+    "technologies": {
+      "frontend": [
+        "React 18",
+        "TypeScript",
+        "Tailwind CSS",
+        "shadcn/ui",
+        "Framer Motion",
+        "React Query",
+        "Wouter (routing)"
+      ],
+      "backend": [
+        "Node.js",
+        "Express.js",
+        "WebSocket",
+        "OpenAI API",
+        "Drizzle ORM"
+      ],
+      "base_de_donnees": [
+        "PostgreSQL (via Drizzle)",
+        "Stockage en mémoire (développement)"
+      ]
+    },
+    "architecture_patterns": [
+      "MVC (Model-View-Controller)",
+      "Repository Pattern (IStorage)",
+      "Context API (React)",
+      "Custom Hooks",
+      "Component Composition",
+      "RESTful API",
+      "WebSocket Real-time"
+    ]
+  }
+}
+
+
+
+
+
+
+
+
+

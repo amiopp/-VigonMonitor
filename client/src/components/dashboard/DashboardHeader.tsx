@@ -1,10 +1,17 @@
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, User, Settings } from "lucide-react";
+import { Bell, Settings, User, LogOut, Building2, Users, BarChart3 } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { Link } from "wouter";
 
 export default function DashboardHeader() {
   const { user, logout } = useAuth();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+  };
 
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">
@@ -23,6 +30,18 @@ export default function DashboardHeader() {
               </h1>
               <p className="text-sm text-gray-600">Management Dashboard</p>
             </div>
+          </div>
+
+          {/* Role-based navigation buttons */}
+          <div className="flex items-center space-x-4">
+            {(user?.role === 'staff' || user?.role === 'admin') && (
+              <Link href="/staff-dashboard">
+                <Button variant="outline" size="sm" className="flex items-center space-x-2">
+                  <Users className="h-4 w-4" />
+                  <span>Staff Dashboard</span>
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* User Info and Actions */}
@@ -51,7 +70,7 @@ export default function DashboardHeader() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={logout}
+                    onClick={handleLogout}
                     className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
