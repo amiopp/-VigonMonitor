@@ -1,7 +1,7 @@
 # Vigon Monitor - Hotel IT Infrastructure Management
 
 A comprehensive, professional hotel IT infrastructure management system with AI-powered assistance, real-time monitoring, and modern UI/UX.
-Login page (<img width="1919" height="902" alt="Capture d'écran 2025-09-15 045958" src="https://github.com/user-attachments/assets/4d0ffa55-3d57-4f7c-9bc8-6a7e88886d1a" />)
+<img width="1919" height="902" alt="Capture d'écran 2025-09-15 045958" src="https://github.com/user-attachments/assets/4d0ffa55-3d57-4f7c-9bc8-6a7e88886d1a" />
 
 ## ✨ New Features
 
